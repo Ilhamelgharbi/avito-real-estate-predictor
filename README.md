@@ -162,9 +162,7 @@ avito-real-estate-predictor/
 ├── notebooks/              # Jupyter analysis
 │   ├── saleshouses_ml_pipeline.ipynb
 │   └── script.py
-├── plots/                  # Additional charts
 ├── reports/                # Performance reports
-├── src/                   # Source code
 └── requirements.txt        # Dependencies
 ```
 
