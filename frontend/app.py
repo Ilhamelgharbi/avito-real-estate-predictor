@@ -78,6 +78,37 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ========== TRAIN MODEL BUTTON ==========
+st.markdown("## 🔧 Model Training")
+if st.button("🚀 Train New Model", help="This will retrain the ML model with the latest data. It may take several minutes."):
+    with st.spinner("Training model... This may take 5-10 minutes."):
+        try:
+            response = requests.post(f"{API_URL}/train", timeout=600)  # 10 min timeout
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("status") == "success":
+                    st.success("✅ Model trained successfully! The new model is now active.")
+                    # Reload the model in the backend
+                    try:
+                        reload_response = requests.post(f"{API_URL}/reload")
+                        if reload_response.status_code == 200:
+                            st.info("🔄 Model reloaded in backend.")
+                        else:
+                            st.warning("Model trained but reload failed. You may need to restart the app.")
+                    except:
+                        st.warning("Model trained but reload failed. You may need to restart the app.")
+                    st.rerun()  # Refresh to reload any cached data
+                else:
+                    st.error(f"❌ Training failed: {result.get('message', 'Unknown error')}")
+            else:
+                st.error(f"❌ Training failed: HTTP {response.status_code}")
+        except requests.exceptions.Timeout:
+            st.error("⏰ Training timed out. The process may still be running in the background.")
+        except Exception as e:
+            st.error(f"⚠️ Error: {str(e)}")
+
+st.markdown("---")
+
 # ========== DONNÉES STATIQUES ==========
 # Villes disponibles (basé sur les données d'entraînement)
 CITIES = [

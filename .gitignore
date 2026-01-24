@@ -129,9 +129,9 @@ dmypy.json
 .pyre/
 
 # Machine Learning / Data Science
-*.pkl
+
 *.pickle
-*.joblib
+
 *.h5
 *.hdf5
 *.model
@@ -144,13 +144,19 @@ dmypy.json
 *.pt
 
 # Data files
-*.csv
+
 *.xlsx
 *.xls
 *.json
 data/
-!data/processed/
 !data/appartements-data-db.csv
+
+# Generated files and directories
+models/
+models/metadata.json
+reports/
+visualizations/
+data/processed/
 
 # Logs
 *.log

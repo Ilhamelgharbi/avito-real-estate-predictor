@@ -23,9 +23,20 @@ fi
 
 echo "✅ Python $PYTHON_VERSION detected"
 
+# Install uv
+echo "📦 Installing uv..."
+pip install uv
+
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to install uv"
+    exit 1
+fi
+
+echo "✅ uv installed successfully"
+
 # Install dependencies
 echo "📦 Installing dependencies..."
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 if [ $? -ne 0 ]; then
     echo "❌ Failed to install dependencies"

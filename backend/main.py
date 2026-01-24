@@ -8,6 +8,7 @@ Similar to CarPriceML API structure
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import subprocess
 from pydantic import BaseModel, Field
 from pathlib import Path
 import joblib
@@ -169,6 +170,53 @@ def predict(city: str, surface_area: float, nb_baths: int, total_rooms: int, equ
         'confidence_interval': confidence_interval,
         'prediction_timestamp': datetime.now().isoformat()
     }
+
+# ========== TRAIN ENDPOINT ==========
+@app.post("/train")
+def train_model():
+    """Lance l'entraînement du modèle"""
+    try:
+        # Run the training script from the project root
+        result = subprocess.run(
+            ["python", "notebooks/script.py"], 
+            cwd=Path(__file__).parent.parent,  # Set cwd to project root
+            capture_output=True, 
+            text=True
+        )
+        if result.returncode == 0:
+            return {"status": "success", "message": "Training completed successfully"}
+        else:
+            return {"status": "error", "message": result.stderr}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.post("/reload")
+def reload_model():
+    """Recharge le modèle depuis les fichiers"""
+    global ml_model, scaler, metadata, numeric_features
+    try:
+        # Recharger le modèle
+        ml_model = joblib.load(MODEL_DIR / "best_model.pkl")
+        logger.info("✅ Modèle rechargé")
+
+        # Recharger le scaler
+        scaler = joblib.load(MODEL_DIR / "scaler.pkl")
+        logger.info("✅ Scaler rechargé")
+
+        # Recharger les métadonnées
+        metadata_path = MODEL_DIR / "metadata.json"
+        if metadata_path.exists():
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+            logger.info("✅ Métadonnées rechargées")
+
+            # Extraire les features numériques
+            numeric_features = metadata.get('numeric_features', [])
+
+        return {"status": "success", "message": "Model reloaded successfully"}
+    except Exception as e:
+        logger.error(f"❌ Erreur de rechargement: {e}")
+        return {"status": "error", "message": str(e)}
 
 # ========== APP ==========
 app = FastAPI(title="SalesHouses API", lifespan=lifespan)

@@ -20,9 +20,21 @@ set REQUIRED_VERSION=3.8
 REM Simple version check (basic check)
 echo ✅ Python detected
 
+REM Install uv
+echo 📦 Installing uv...
+pip install uv
+
+if errorlevel 1 (
+    echo ❌ Failed to install uv
+    pause
+    exit /b 1
+)
+
+echo ✅ uv installed successfully
+
 REM Install dependencies
 echo 📦 Installing dependencies...
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 if errorlevel 1 (
     echo ❌ Failed to install dependencies
